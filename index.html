@@ -127,20 +127,20 @@
                 <button id="restart-button">Chơi lại</button>
                 <button class="hint">Hint</button>
             </div>
-            <div class="pokemon_run">
+            <!-- <div class="pokemon_run">
                 <img
                     src="./assets/gif/pikachu.gif"
                     id="pikachuGif"
                     alt=""
                     height="100px"
                 />
-            </div>
+            </div> -->
         </div>
 
-        <audio id="clickSound" src="/assets/audio/click.mp3"></audio>
-        <audio id="connectSound" src="/assets/audio/connect.mp3"></audio>
-        <audio id="failSound" src="/assets/audio/fail.mp3"></audio>
-        <audio id="startGameSound" src="/assets/audio/startGame.mp3"></audio>
+        <audio id="clickSound" src="./assets/audio/click.mp3"></audio>
+        <audio id="connectSound" src="./assets/audio/connect.mp3"></audio>
+        <audio id="failSound" src="./assets/audio/fail.mp3"></audio>
+        <audio id="startGameSound" src="./assets/audio/startGame.mp3"></audio>
         <script>
             document.addEventListener('DOMContentLoaded', async function () {
                 // Định nghĩa số lượt reset, hint, thời gian mỗi level
@@ -314,21 +314,21 @@
 
                     const numOfImages = 36;
                     for (let i = 1; i <= numOfImages / 3; i++) {
-                        images1.push(`/assets/images/pieces${i}.png`);
+                        images1.push(`./assets/images/pieces${i}.png`);
                     }
                     for (
                         let i = numOfImages / 3 + 1;
                         i <= (numOfImages / 3) * 2;
                         i++
                     ) {
-                        images2.push(`/assets/images/pieces${i}.png`);
+                        images2.push(`./assets/images/pieces${i}.png`);
                     }
                     for (
                         let i = (numOfImages / 3) * 2 + 1;
                         i <= numOfImages;
                         i++
                     ) {
-                        images3.push(`/assets/images/pieces${i}.png`);
+                        images3.push(`./assets/images/pieces${i}.png`);
                     }
                     // x4 và xáo mảng
                     let images = [
