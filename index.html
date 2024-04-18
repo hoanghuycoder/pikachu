@@ -84,6 +84,7 @@
             }
 
             .pieces {
+                position: relative;
                 width: 40px;
                 height: 50px;
                 border: 1px solid rgb(0, 153, 51);
@@ -93,7 +94,20 @@
                 opacity: 0.9;
                 border: 1px solid red;
             }
-
+            .overlay-pieces {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+            }
+            .overlay-pieces > * {
+                color: red;
+                margin: 0 auto;
+                padding: 0;
+                font-weight: bold;
+                width: fit-content;
+            }
             .selected {
                 opacity: 0.7;
             }
@@ -149,133 +163,59 @@
                     {
                         hintAmount: 5,
                         resetAmount: 5,
-                        timeAmount: 600,
+                        timeAmount: 700,
+                        shiftBoard: (board) => {
+                            return board;
+                        },
                     },
                     // level2
                     {
                         hintAmount: 4,
                         resetAmount: 4,
-                        timeAmount: 550,
+                        timeAmount: 650,
+                        shiftBoard: (board) => {
+                            return shiftLeft(board);
+                        },
                     },
                     // level3
                     {
                         hintAmount: 3,
                         resetAmount: 3,
-                        timeAmount: 500,
+                        timeAmount: 600,
+                        shiftBoard: (board) => {
+                            return shiftUp(board);
+                        },
                     },
                     // level4
                     {
                         hintAmount: 2,
                         resetAmount: 2,
-                        timeAmount: 450,
+                        timeAmount: 550,
+                        shiftBoard: (board) => {
+                            return shiftDown(board);
+                        },
                     },
                     // level5
                     {
                         hintAmount: 1,
                         resetAmount: 1,
-                        timeAmount: 400,
+                        timeAmount: 500,
+                        shiftBoard: (board) => {
+                            return shiftHalfLeftRight(board);
+                        },
                     },
                     // level6
                     {
                         hintAmount: 0,
                         resetAmount: 0,
-                        timeAmount: 350,
+                        timeAmount: 450,
+                        shiftBoard: (board) => {
+                            return shiftRight(board);
+                        },
                     },
                 ];
                 let timeCount = null;
                 let levelConfig = {};
-                // Định nghĩa các hàm dùng lại nhiều lần
-                function selectPiece(i, j) {
-                    const e = $(`#pieces-${i}-${j}`);
-                    e.css({
-                        opacity: '0.6',
-                        border: '1px solid red',
-                    });
-                }
-                function hintPiece(i, j) {
-                    const e = $(`#pieces-${i}-${j}`);
-                    e.css({
-                        opacity: '0.7',
-                    });
-                }
-                function unselectPiece(i, j) {
-                    const e = $(`#pieces-${i}-${j}`);
-                    e.css({
-                        opacity: '1',
-                        border: '1px solid rgb(0, 153, 51)',
-                    });
-                }
-                function playSound(idAudio) {
-                    const sound = $('#' + idAudio);
-                    sound[0].play();
-                }
-                function shuffle(array) {
-                    for (let i = array.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [array[i], array[j]] = [array[j], array[i]];
-                    }
-                    return array;
-                }
-                // vẽ line
-                function drawPathLine(startRow, startCol, endRow, endCol) {
-                    const gameBoard = $('#gameBoard');
-                    const canvas = $('<canvas>').addClass('path-line');
-                    const paddingGameboard = gameBoard.css('padding');
-                    const paddingY = paddingGameboard.split(' ')[0];
-                    const paddingX = paddingGameboard.split(' ')[1];
-
-                    canvas.css({
-                        position: 'absolute',
-                        top: paddingY,
-                        left: paddingX,
-                        right: paddingX,
-                        bottom: paddingY,
-                    });
-                    const cellWidth = gameBoard.find('img').outerWidth();
-                    const cellHeight = gameBoard.find('img').outerHeight(); // Get cell height
-                    const offsetWidth = cellWidth / 2;
-                    const offsetHeight = cellHeight / 2; // Calculate half of cell height
-                    canvas.attr('width', gameBoard.width());
-                    canvas.attr('height', gameBoard.height());
-                    const ctx = canvas[0].getContext('2d');
-                    ctx.beginPath();
-                    // Calculate center points
-                    const startX = startCol * cellWidth + offsetWidth;
-                    const startY = startRow * cellHeight + offsetHeight;
-                    const endX = endCol * cellWidth + offsetWidth;
-                    const endY = endRow * cellHeight + offsetHeight;
-                    ctx.moveTo(startX, startY);
-                    ctx.lineTo(endX, endY);
-                    ctx.strokeStyle = 'red'; // Color of the path line
-                    ctx.lineWidth = 3;
-                    ctx.stroke();
-                    gameBoard.append(canvas);
-                }
-                function drawPath(paths) {
-                    if (paths) {
-                        for (let i = 0; i < paths.length - 1; i++) {
-                            const startPoint = paths[i];
-                            const endPoint = paths[i + 1];
-                            drawPathLine(
-                                startPoint.row,
-                                startPoint.col,
-                                endPoint.row,
-                                endPoint.col
-                            );
-                        }
-                    }
-                }
-                function removePathLines() {
-                    $('.path-line').remove();
-                }
-                // Các pieces
-                function Node(row, col, turns, prevDirection, path) {
-                    this.row = row;
-                    this.col = col;
-                    this.turns = turns;
-                    this.prevDirection = prevDirection; // 'up', 'down', 'left', 'right', or 'start'
-                    this.path = path; //Lưu đường đi
-                }
                 startGame(1);
                 $('#restart-button').click(function () {
                     startGame(1);
@@ -284,28 +224,14 @@
                 async function startGame(level) {
                     let paths = [];
                     clearTimeout(timeCount);
-                    levelConfig = b = JSON.parse(
-                        JSON.stringify(gameParameters[level - 1])
-                    );
+                    countTime();
+                    //  Copy ra object với vùng nhớ mới
+                    levelConfig = { ...gameParameters[level - 1] };
                     const pointWin = 72;
                     let currentPoint = 0;
                     $('#score')[0].innerText = currentPoint;
                     $('#time')[0].innerText = levelConfig.timeAmount;
-                    function countTime() {
-                        timeCount = setInterval(function () {
-                            levelConfig.timeAmount -= 1;
-                            $('#time')[0].innerText = levelConfig.timeAmount;
-                            if (
-                                levelConfig.timeAmount == 0 &&
-                                currentPoint < pointWin
-                            ) {
-                                alert('You lose');
-                                startGame(1);
-                            }
-                        }, 1000);
-                    }
 
-                    countTime();
                     let firstSelection = null; // Lưu { row: x, col: y } của lần chọn đầu tiên
                     let secondSelection = null;
                     let images1 = [];
@@ -345,7 +271,6 @@
                         ...shuffle(shuffle(images1)),
                         ...shuffle(images2),
                     ];
-                    console.log(images.length);
                     // Xáo mảng
                     for (let index = 0; index < 20; index++) {
                         images = shuffle(images);
@@ -368,61 +293,84 @@
                             }
                         }
                     }
-                    // Xáo mảng 2 chiều
-                    function shuffleBoard() {
-                        const shuffledBoard = board
-                            .flatMap((row) => row)
-                            .filter((item) => item !== null);
-                        shuffle(shuffledBoard);
-                        let index = 0;
-                        for (let i = 1; i < boardSizeRow - 1; i++) {
-                            for (let j = 1; j < boardSizeCol - 1; j++) {
-                                if (board[i][j] !== null) {
-                                    board[i][j] = shuffledBoard[index];
-                                    index++;
-                                }
-                            }
-                        }
-                    }
-                    await shuffleBoard();
-                    function renderBoard() {
+                    // Xáo mảng 2 chiều thêm lần nữa
+                    board = await shuffleBoard(
+                        board,
+                        boardSizeRow,
+                        boardSizeCol
+                    );
+                    console.log(board);
+                    async function renderBoard() {
                         const gameBoard = $('#gameBoard');
-                        $('.pieces').remove(); // Xóa bảng cũ
-                        $('.pieces').css({ opacity: 1 });
-                        for (let i = 0; i < board.length; i++) {
-                            for (let j = 0; j < board[i].length; j++) {
-                                const image = board[i][j];
-                                const imgElement = $('<img>');
-                                imgElement.attr('id', `pieces-${i}-${j}`);
-                                imgElement.attr('data-i', i);
-                                imgElement.attr('data-j', j);
-                                imgElement.addClass('pieces');
-                                if (image !== null) {
-                                    imgElement.attr('src', image);
-                                    imgElement.click(() => handleClick(i, j));
-                                } else {
-                                    imgElement.css('visibility', 'hidden');
-                                    imgElement.attr(
-                                        'src',
-                                        '/assets/images/pieces36.png'
-                                    );
-                                }
-
-                                gameBoard.append(imgElement);
-                            }
-                        }
+                        // Vẽ đường sau đó xóa sau 150ms
                         drawPath(paths);
                         setTimeout(function () {
                             removePathLines();
                             paths = null;
                         }, 150);
+                        board = levelConfig.shiftBoard(board);
+                        $('.pieces').remove(); // Xóa bảng cũ
+                        $('.pieces').css({ opacity: 1 });
+                        for (let i = 0; i < board.length; i++) {
+                            for (let j = 0; j < board[i].length; j++) {
+                                // Xử lý DOM mới
+                                const image = board[i][j];
+                                let imgDOM = `
+                                <div class="pieces" data-i="${i}" data-j="${j}">
+                                    <img id="pieces-${i}-${j}"  class="pieces-img" width="100%" src="${image}">
+
+                                </div>`;
+                                let imgElement = $(imgDOM);
+                                if (image !== null) {
+                                    imgElement.click(() => handleClick(i, j));
+                                } else {
+                                    imgDOM = `
+                                    <div class="pieces" data-i="${i}" data-j="${j}">
+                                        <img id="pieces-${i}-${j}"  class="pieces-img" width="100%" src="/assets/images/pieces36.png">
+                                    </div>`;
+                                    imgElement = $(imgDOM);
+                                    imgElement.css('visibility', 'hidden');
+                                }
+
+                                gameBoard.append(imgElement);
+                            }
+                        }
+
+                        // Render lại board nếu hết đường đi
                         if (!checkForPaths()) {
-                            shuffleBoard();
+                            for (let index = 0; index < 5; index++) {
+                                board = await shuffleBoard(
+                                    board,
+                                    boardSizeRow,
+                                    boardSizeCol
+                                );
+                            }
                             renderBoard();
                         }
                     }
                     renderBoard();
 
+                    $('.hint').off('click');
+                    $('.hint').click(function () {
+                        const way = checkForPaths();
+                        hintPiece(way.first.row, way.first.col);
+                        hintPiece(way.second.row, way.second.col);
+                    });
+                    // Các hàm xử lý logic khi khởi tạo game
+                    function countTime() {
+                        timeCount = setInterval(function () {
+                            levelConfig.timeAmount -= 1;
+                            $('#time')[0].innerText = levelConfig.timeAmount;
+                            if (
+                                levelConfig.timeAmount == 0 &&
+                                currentPoint < pointWin
+                            ) {
+                                alert('You lose');
+                                startGame(1);
+                            }
+                        }, 1000);
+                    }
+                    // Tìm đường đi giữa 2 node
                     function bfs(board, startRow, startCol, endRow, endCol) {
                         if (startCol == endCol && startRow == endRow)
                             return false;
@@ -436,7 +384,6 @@
                         queue.push(
                             new Node(startRow, startCol, 0, 'start', [])
                         );
-                        visited[startRow][startCol] = true;
                         let path = []; // Lưu đường
                         // Duyệt BFS
                         while (queue.length > 0) {
@@ -451,7 +398,7 @@
                                 board[endRow][endCol] != null
                             ) {
                                 currentNode.path.push({ row: r, col: c });
-                                return currentNode.path;
+                                return currentNode.path; // trả về đường dẫn đến đích để vẽ đường
                             }
                             // Duyệt 4 hướng
                             const directions = [
@@ -471,8 +418,7 @@
                                     newRow >= 0 &&
                                     newRow < rows &&
                                     newCol >= 0 &&
-                                    newCol < cols &&
-                                    !visited[newRow][newCol]
+                                    newCol < cols
                                 ) {
                                     // Kiểm tra quẹo
                                     if (currentNode.prevDirection !== dir) {
@@ -494,7 +440,6 @@
                                         board[startRow][startCol] ==
                                             board[endRow][endCol]
                                     ) {
-                                        visited[newRow][newCol] = true;
                                         queue.push(
                                             new Node(
                                                 newRow,
@@ -505,6 +450,7 @@
                                             )
                                         );
                                     }
+                                    console.log;
                                 }
                             }
                         }
@@ -521,7 +467,6 @@
                             second.col
                         );
                     }
-
                     function handleClick(row, col) {
                         // Nếu click vào ô trống, bỏ qua
                         if (board[row][col] === null) return;
@@ -536,7 +481,9 @@
                                 firstSelection.row === row &&
                                 firstSelection.col === col
                             ) {
-                                return; // Người chơi chọn lại ô đầu tiên, không làm gì cả
+                                unselectPiece(row, col);
+                                firstSelection = null;
+                                return;
                             }
                             playSound('clickSound');
                             secondSelection = { row, col };
@@ -546,6 +493,7 @@
                                 firstSelection,
                                 secondSelection
                             );
+                            // Xử lý nếu có đường đi
                             if (paths) {
                                 board[firstSelection.row][firstSelection.col] =
                                     null;
@@ -560,15 +508,12 @@
                                     alert('Bạn đã thắng');
                                     startGame(level + 1);
                                 } else {
-                                    // Re-render
-
                                     renderBoard();
                                 }
                             } else {
                                 playSound('failSound');
-                                // Không tìm thấy kết nối: chỉ reset lựa chọn và có thể thông báo cho người chơi
-                                console.log('No match!');
                             }
+                            // Xử lý DOM css và reset lựa chọn
                             unselectPiece(
                                 firstSelection.row,
                                 firstSelection.col
@@ -581,7 +526,7 @@
                             secondSelection = null;
                         }
                     }
-                    // Kiểm tra xem mảng 2 chiều còn đường đi <= 3 khúc quẹo hay không?
+                    // Kiểm tra xem board còn piece nào có thể kết nối không
                     function checkForPaths() {
                         for (let i = 0; i < boardSizeRow; i++) {
                             for (let j = 0; j < boardSizeCol; j++) {
@@ -610,13 +555,232 @@
                         }
                         return null;
                     }
-                    $('.hint').off('click');
-                    $('.hint').click(function () {
-                        const way = checkForPaths();
-                        hintPiece(way.first.row, way.first.col);
-                        hintPiece(way.second.row, way.second.col);
+                    // Các node của board
+                    function Node(row, col, turns, prevDirection, path) {
+                        this.row = row;
+                        this.col = col;
+                        this.turns = turns;
+                        this.prevDirection = prevDirection; // 'up', 'down', 'left', 'right', or 'start'
+                        this.path = path; //Lưu đường đi
+                    }
+                }
+                // Các hàm dùng lại nhiều lần
+                function selectPiece(i, j) {
+                    const e = $(`#pieces-${i}-${j}`);
+                    e.css({
+                        opacity: '0.6',
+                        border: '1px solid red',
                     });
                 }
+                function hintPiece(i, j) {
+                    const e = $(`#pieces-${i}-${j}`);
+                    e.css({
+                        opacity: '0.7',
+                    });
+                }
+                function unselectPiece(i, j) {
+                    const e = $(`#pieces-${i}-${j}`);
+                    e.css({
+                        opacity: '1',
+                        border: '1px solid rgb(0, 153, 51)',
+                    });
+                }
+                function playSound(idAudio) {
+                    const sound = $('#' + idAudio);
+                    sound[0].play();
+                }
+                function shuffle(array) {
+                    for (let i = array.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [array[i], array[j]] = [array[j], array[i]];
+                    }
+                    return array;
+                }
+                // Vẽ line
+                function drawPathLine(startRow, startCol, endRow, endCol) {
+                    const gameBoard = $('#gameBoard');
+                    const canvas = $('<canvas>').addClass('path-line');
+                    const paddingGameboard = gameBoard.css('padding');
+                    // Vẽ canvas trừ đi các padding hoặc có thể + padding vào trong lúc tính center
+                    const paddingY = paddingGameboard.split(' ')[0];
+                    const paddingX = paddingGameboard.split(' ')[1];
+                    canvas.css({
+                        position: 'absolute',
+                        top: paddingY,
+                        left: paddingX,
+                        right: paddingX,
+                        bottom: paddingY,
+                    });
+                    // Tính chiều cao và chiều rộng của pieces
+                    const cellWidth = gameBoard.find('div.pieces').outerWidth();
+                    const cellHeight = gameBoard
+                        .find('div.pieces')
+                        .outerHeight();
+                    const offsetWidth = cellWidth / 2;
+                    const offsetHeight = cellHeight / 2;
+                    canvas.attr('width', gameBoard.width());
+                    canvas.attr('height', gameBoard.height());
+                    const ctx = canvas[0].getContext('2d');
+                    ctx.beginPath();
+                    // Tính điểm center của pieces
+                    const startX = startCol * cellWidth + offsetWidth;
+                    const startY = startRow * cellHeight + offsetHeight;
+                    const endX = endCol * cellWidth + offsetWidth;
+                    const endY = endRow * cellHeight + offsetHeight;
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(endX, endY);
+                    ctx.strokeStyle = 'red';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    gameBoard.append(canvas);
+                }
+                function drawPath(paths) {
+                    if (paths) {
+                        for (let i = 0; i < paths.length - 1; i++) {
+                            const startPoint = paths[i];
+                            const endPoint = paths[i + 1];
+                            drawPathLine(
+                                startPoint.row,
+                                startPoint.col,
+                                endPoint.row,
+                                endPoint.col
+                            );
+                        }
+                    }
+                }
+                function removePathLines() {
+                    $('.path-line').remove();
+                }
+                // Xáo mảng 2 chiều
+                function shuffleBoard(board, boardSizeRow, boardSizeCol) {
+                    const shuffledBoard = board
+                        .flatMap((row) => row)
+                        .filter((item) => item !== null);
+                    shuffle(shuffledBoard);
+                    let index = 0;
+                    for (let i = 1; i < boardSizeRow - 1; i++) {
+                        for (let j = 1; j < boardSizeCol - 1; j++) {
+                            if (board[i][j] !== null) {
+                                board[i][j] = shuffledBoard[index];
+                                index++;
+                            }
+                        }
+                    }
+                    return board;
+                }
+                // LƯU Ý : Board được bọc bởi 2 hàng và 2 cột giá trị null ở đầu và cuối nên giá trị ở đó luôn null
+                // Chỉ xử lý giá trị từ hàng 1-9 và cột 1-16
+                function shiftLeft(board) {
+                    for (let i = 0; i < board.length; i++) {
+                        let newRow = [];
+                        newRow.push(null);
+                        for (let j = 1; j < board[i].length - 1; j++) {
+                            if (board[i][j] !== null) {
+                                newRow.push(board[i][j]);
+                            }
+                        }
+                        newRow.push(null);
+                        board[i] = newRow.concat(
+                            Array(board[i].length - newRow.length).fill(null)
+                        );
+                    }
+                    return board;
+                }
+                function shiftRight(board) {
+                    for (let i = 0; i < board.length; i++) {
+                        let newRow = [];
+                        for (let j = board[i].length - 2; j >= 1; j--) {
+                            if (board[i][j] !== null) {
+                                newRow.unshift(board[i][j]);
+                            }
+                        }
+                        // Vì cột đầu tiên và cột cuối luôn là null
+                        newRow.unshift(null);
+                        newRow.push(null);
+                        board[i] = Array(board[i].length - newRow.length)
+                            .fill(null)
+                            .concat(newRow);
+                    }
+                    return board;
+                }
+                function shiftUp(board) {
+                    for (let j = 0; j < board[0].length; j++) {
+                        let newColumn = [];
+                        newColumn.push(null);
+                        for (let i = 1; i < board.length - 1; i++) {
+                            if (board[i][j] !== null) {
+                                newColumn.push(board[i][j]);
+                            }
+                        }
+                        for (let i = 0; i < board.length; i++) {
+                            if (i < newColumn.length) {
+                                board[i][j] = newColumn[i];
+                            } else {
+                                board[i][j] = null;
+                            }
+                        }
+                    }
+                    return board;
+                }
+                function shiftDown(board) {
+                    for (let j = 0; j < board[0].length; j++) {
+                        let newColumn = [];
+                        let countNull = 0;
+                        for (let i = board.length - 2; i >= 1; i--) {
+                            if (board[i][j] !== null) {
+                                newColumn.unshift(board[i][j]);
+                            } else {
+                                countNull++;
+                            }
+                        }
+                        for (let i = 0; i < countNull; i++) {
+                            newColumn.unshift(null);
+                        }
+                        newColumn.unshift(null);
+                        newColumn.push(null);
+                        for (let i = 0; i < board.length; i++) {
+                            board[i][j] = newColumn[i];
+                        }
+                    }
+                    return board;
+                }
+                function shiftHalfLeftRight(board) {
+                    const halfCols = board[0].length / 2;
+                    let leftHalf = [];
+                    let rightHalf = [];
+                    for (let i = 1; i < board.length - 1; i++) {
+                        for (let j = 1; j < board[i].length - 1; j++) {
+                            if (i < halfCols) {
+                                if (board[i][j] !== null) {
+                                    leftHalf.push(board[i][j]);
+                                }
+                            } else {
+                                if (board[i][j] !== null) {
+                                    rightHalf.unshift(board[i][j]);
+                                }
+                            }
+                        }
+                        const remainLeftLength =
+                            halfCols - leftHalf.length > 0
+                                ? halfCols - leftHalf.length
+                                : 0;
+                        const remainLeftRight =
+                            board.length - halfCols - rightHalf.length > 0
+                                ? halfCols - leftHalf.length
+                                : 0;
+
+                        leftHalf.unshift(null);
+                        leftHalf = leftHalf.concat(
+                            Array(remainLeftLength).fill(null)
+                        );
+                        rightHalf.push(null);
+                        rightHalf = Array().fill(null).concat(rightHalf);
+                        board[i] = [...leftHalf, ...rightHalf];
+                    }
+                    console.log(board);
+                    return board;
+                }
+                // Kết thúc các hàm dùng lại nhiều lần
             });
         </script>
     </body>
