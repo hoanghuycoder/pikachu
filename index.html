@@ -216,7 +216,7 @@
                 ];
                 let timeCount = null;
                 let levelConfig = {};
-                startGame(1);
+                startGame(5);
                 $('#restart-button').click(function () {
                     startGame(1);
                     playSound('startGameSound');
@@ -302,12 +302,7 @@
                     console.log(board);
                     async function renderBoard() {
                         const gameBoard = $('#gameBoard');
-                        // Vẽ đường sau đó xóa sau 150ms
-                        drawPath(paths);
-                        setTimeout(function () {
-                            removePathLines();
-                            paths = null;
-                        }, 150);
+
                         board = levelConfig.shiftBoard(board);
                         $('.pieces').remove(); // Xóa bảng cũ
                         $('.pieces').css({ opacity: 1 });
@@ -335,7 +330,12 @@
                                 gameBoard.append(imgElement);
                             }
                         }
-
+                        // Vẽ đường sau đó xóa sau 150ms
+                        drawPath(paths);
+                        setTimeout(function () {
+                            removePathLines();
+                            paths = null;
+                        }, 150);
                         // Render lại board nếu hết đường đi
                         if (!checkForPaths()) {
                             for (let index = 0; index < 5; index++) {
@@ -749,8 +749,9 @@
                     let leftHalf = [];
                     let rightHalf = [];
                     for (let i = 1; i < board.length - 1; i++) {
+                        console.log('_______________________________');
                         for (let j = 1; j < board[i].length - 1; j++) {
-                            if (i < halfCols) {
+                            if (i <= halfCols) {
                                 if (board[i][j] !== null) {
                                     leftHalf.push(board[i][j]);
                                 }
@@ -766,15 +767,17 @@
                                 : 0;
                         const remainLeftRight =
                             board.length - halfCols - rightHalf.length > 0
-                                ? halfCols - leftHalf.length
+                                ? board.length - halfCols - rightHalf.length
                                 : 0;
-
+                        console.log(remainLeftRight);
                         leftHalf.unshift(null);
                         leftHalf = leftHalf.concat(
                             Array(remainLeftLength).fill(null)
                         );
+                        console.log(leftHalf);
                         rightHalf.push(null);
                         rightHalf = Array().fill(null).concat(rightHalf);
+                        console.log(rightHalf);
                         board[i] = [...leftHalf, ...rightHalf];
                     }
                     console.log(board);
