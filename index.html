@@ -174,7 +174,7 @@
                         resetAmount: 4,
                         timeAmount: 650,
                         shiftBoard: (board) => {
-                            return shiftLeft(board);
+                            return shiftUp(board);
                         },
                     },
                     // level3
@@ -183,7 +183,7 @@
                         resetAmount: 3,
                         timeAmount: 600,
                         shiftBoard: (board) => {
-                            return shiftUp(board);
+                            return shiftDown(board);
                         },
                     },
                     // level4
@@ -192,7 +192,7 @@
                         resetAmount: 2,
                         timeAmount: 550,
                         shiftBoard: (board) => {
-                            return shiftDown(board);
+                            return shiftLeft(board);
                         },
                     },
                     // level5
@@ -201,7 +201,7 @@
                         resetAmount: 1,
                         timeAmount: 500,
                         shiftBoard: (board) => {
-                            return shiftHalfLeftRight(board);
+                            return shiftRight(board);
                         },
                     },
                     // level6
@@ -210,7 +210,7 @@
                         resetAmount: 0,
                         timeAmount: 450,
                         shiftBoard: (board) => {
-                            return shiftRight(board);
+                            return shiftHalfLeftRight(board);
                         },
                     },
                 ];
