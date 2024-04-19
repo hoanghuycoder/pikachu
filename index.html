@@ -136,6 +136,7 @@
             <div id="score-board">
                 <span>Điểm: <span id="score">0</span></span>
                 <span>Thời gian: <span id="time">0</span></span>
+                <span>Cấp độ: <span id="level">0</span></span>
             </div>
             <div id="buttons">
                 <button id="restart-button">Chơi lại</button>
@@ -213,10 +214,37 @@
                             return shiftHalfLeftRight(board);
                         },
                     },
+                    // Level 7
+                    {
+                        hintAmount: 0,
+                        resetAmount: 0,
+                        timeAmount: 425,
+                        shiftBoard: (board) => {
+                            return shiftHalfUpDown(board);
+                        },
+                    },
+                    // Level 8
+                    {
+                        hintAmount: 0,
+                        resetAmount: 0,
+                        timeAmount: 400,
+                        shiftBoard: (board) => {
+                            return shiftHalfLeftRightToCenter(board);
+                        },
+                    },
+                    // Level 9
+                    {
+                        hintAmount: 0,
+                        resetAmount: 0,
+                        timeAmount: 375,
+                        shiftBoard: (board) => {
+                            return shiftHalfUpDownToCenter(board);
+                        },
+                    },
                 ];
                 let timeCount = null;
                 let levelConfig = {};
-                startGame(5);
+                startGame(1);
                 $('#restart-button').click(function () {
                     startGame(1);
                     playSound('startGameSound');
@@ -227,10 +255,15 @@
                     countTime();
                     //  Copy ra object với vùng nhớ mới
                     levelConfig = { ...gameParameters[level - 1] };
+                    if (levelConfig == null) {
+                        startGame(1);
+                        return;
+                    }
                     const pointWin = 72;
                     let currentPoint = 0;
                     $('#score')[0].innerText = currentPoint;
                     $('#time')[0].innerText = levelConfig.timeAmount;
+                    $('#level')[0].innerText = level;
 
                     let firstSelection = null; // Lưu { row: x, col: y } của lần chọn đầu tiên
                     let secondSelection = null;
@@ -338,6 +371,7 @@
                         }, 150);
                         // Render lại board nếu hết đường đi
                         if (!checkForPaths()) {
+                            alert('Đã hết đường, xếp lại bảng ngẫu nhiên');
                             for (let index = 0; index < 5; index++) {
                                 board = await shuffleBoard(
                                     board,
@@ -746,41 +780,123 @@
                 }
                 function shiftHalfLeftRight(board) {
                     const halfCols = board[0].length / 2;
-                    let leftHalf = [];
-                    let rightHalf = [];
+
                     for (let i = 1; i < board.length - 1; i++) {
-                        console.log('_______________________________');
+                        let leftHalf = [];
+                        let rightHalf = [];
                         for (let j = 1; j < board[i].length - 1; j++) {
-                            if (i <= halfCols) {
+                            if (j < halfCols) {
                                 if (board[i][j] !== null) {
                                     leftHalf.push(board[i][j]);
+                                    console.log('push');
                                 }
                             } else {
                                 if (board[i][j] !== null) {
-                                    rightHalf.unshift(board[i][j]);
+                                    rightHalf.push(board[i][j]);
                                 }
                             }
                         }
-                        const remainLeftLength =
-                            halfCols - leftHalf.length > 0
-                                ? halfCols - leftHalf.length
-                                : 0;
-                        const remainLeftRight =
-                            board.length - halfCols - rightHalf.length > 0
-                                ? board.length - halfCols - rightHalf.length
-                                : 0;
-                        console.log(remainLeftRight);
                         leftHalf.unshift(null);
                         leftHalf = leftHalf.concat(
-                            Array(remainLeftLength).fill(null)
+                            Array(halfCols - leftHalf.length).fill(null)
                         );
-                        console.log(leftHalf);
                         rightHalf.push(null);
-                        rightHalf = Array().fill(null).concat(rightHalf);
-                        console.log(rightHalf);
+                        rightHalf = Array(halfCols - rightHalf.length)
+                            .fill(null)
+                            .concat(rightHalf);
                         board[i] = [...leftHalf, ...rightHalf];
                     }
-                    console.log(board);
+                    return board;
+                }
+                function shiftHalfUpDown(board) {
+                    const halfRow = Math.floor(board.length / 2);
+                    for (let j = 1; j < board[0].length - 1; j++) {
+                        let halfUp = [];
+                        let halfDown = [];
+                        for (let i = 1; i < board.length - 1; i++) {
+                            if (i < halfRow) {
+                                if (board[i][j] != null) {
+                                    halfUp.push(board[i][j]);
+                                }
+                            } else {
+                                if (board[i][j] != null) {
+                                    halfDown.push(board[i][j]);
+                                }
+                            }
+                        }
+                        halfUp.unshift(null);
+                        halfUp = halfUp.concat(
+                            Array(halfRow - halfUp.length).fill(null)
+                        );
+                        halfDown.push(null);
+                        halfDown = Array(halfRow + 1 - halfDown.length)
+                            .fill(null)
+                            .concat(halfDown);
+                        const colShifted = [...halfUp, ...halfDown];
+                        for (let i = 0; i < board.length; i++) {
+                            board[i][j] = colShifted[i];
+                        }
+                    }
+                    return board;
+                }
+                function shiftHalfLeftRightToCenter(board) {
+                    const halfCols = board[0].length / 2;
+                    for (let i = 1; i < board.length - 1; i++) {
+                        let leftHalf = [];
+                        let rightHalf = [];
+                        for (let j = 1; j < board[i].length - 1; j++) {
+                            if (j < halfCols) {
+                                if (board[i][j] !== null) {
+                                    leftHalf.push(board[i][j]);
+                                    console.log('push');
+                                }
+                            } else {
+                                if (board[i][j] !== null) {
+                                    rightHalf.push(board[i][j]);
+                                }
+                            }
+                        }
+                        leftHalf.unshift(null);
+                        leftHalf = Array(halfCols - leftHalf.length)
+                            .fill(null)
+                            .concat(leftHalf);
+                        rightHalf.push(null);
+                        rightHalf = rightHalf.concat(
+                            Array(halfCols - rightHalf.length).fill(null)
+                        );
+                        board[i] = [...leftHalf, ...rightHalf];
+                    }
+                    return board;
+                }
+                function shiftHalfUpDownToCenter(board) {
+                    const halfRow = Math.floor(board.length / 2);
+                    for (let j = 1; j < board[0].length - 1; j++) {
+                        let halfUp = [];
+                        let halfDown = [];
+                        for (let i = 1; i < board.length - 1; i++) {
+                            if (i < halfRow) {
+                                if (board[i][j] != null) {
+                                    halfUp.push(board[i][j]);
+                                }
+                            } else {
+                                if (board[i][j] != null) {
+                                    halfDown.push(board[i][j]);
+                                }
+                            }
+                        }
+                        halfUp.unshift(null);
+                        halfUp = Array(halfRow - halfUp.length)
+                            .fill(null)
+                            .concat(halfUp);
+                        halfDown.push(null);
+                        halfDown = halfDown.concat(
+                            Array(halfRow + 1 - halfDown.length).fill(null)
+                        );
+                        const colShifted = [...halfUp, ...halfDown];
+                        for (let i = 0; i < board.length; i++) {
+                            board[i][j] = colShifted[i];
+                        }
+                    }
                     return board;
                 }
                 // Kết thúc các hàm dùng lại nhiều lần
