@@ -20,14 +20,6 @@
     </head>
     <body>
         <div id="game-container">
-            <div class="pokemon_run">
-                <img
-                    src="./assets/gif/pikachu.gif"
-                    id="pikachuGif"
-                    alt=""
-                    height="100px"
-                />
-            </div>
             <div class="action-bar">
                 <div class="action-content">
                     <div class="action-left">
@@ -74,8 +66,8 @@
                         <span><span id="time">0</span><span>s</span></span>
                     </div>
                     <div class="action-right">
-                        <div class="reset-button button">
-                            <div class="action-icon">
+                        <div class="reset-button">
+                            <div class="action-icon button">
                                 <img
                                     src="./assets/images/reload.png"
                                     width="100%"
@@ -84,8 +76,8 @@
                             </div>
                             <p id="resetAmount">1</p>
                         </div>
-                        <div class="hint-button button">
-                            <div class="action-icon">
+                        <div class="hint-button">
+                            <div class="action-icon button">
                                 <img
                                     src="./assets/images/search.png"
                                     width="100%"
@@ -106,11 +98,46 @@
                     </div>
                 </div>
             </div>
+
             <div id="gameBoard"></div>
-            <!-- <button id="restart-button">PLAY AGAIN</button> -->
+            <button id="restart-button" class="button">PLAY AGAIN</button>
             <div class="pokemon-run-margin"></div>
         </div>
-
+        <div class="modal-back-drop">
+            <div class="modal">
+                <div class="modal-header">
+                    <h4 class="modal-title">Thông tin cá nhân</h4>
+                    <div class="action-icon close-modal button">
+                        <img
+                            src="./assets/images/close.png"
+                            alt="Close modal"
+                            width="100%"
+                        />
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Họ và tên: </strong>Trần Võ Hoàng Huy</p>
+                    <p><strong>Mssv: </strong>21130386</p>
+                    <p><strong>Ngày sinh: </strong>21/10/2003</p>
+                    <p>
+                        Game có 9 cấp độ, độ khó sẽ tăng dần theo mỗi cấp độ.
+                        Thời gian, số gợi ý, số lượt xếp bảng sẽ bị giảm đi. Ở
+                        từng level bảng sẽ bị đẩy sang trên, dưới, trái, phải,
+                        nửa trái nửa phải, nửa trên nửa dưới, nửa trái nửa phải
+                        căng vào giữa và nửa trên nửa dưới căng vào giữa tương
+                        ứng với từng cấp độ 2,3,4,5,6,7,8,9
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="pokemon_run">
+            <img
+                src="./assets/gif/pikachu.gif"
+                id="pikachuGif"
+                alt=""
+                height="100px"
+            />
+        </div>
         <audio id="clickSound" src="./assets/audio/click.mp3"></audio>
         <audio id="connectSound" src="./assets/audio/connect.mp3"></audio>
         <audio id="failSound" src="./assets/audio/fail.mp3"></audio>
@@ -217,6 +244,33 @@
                 $('#restart-button').click(function () {
                     startGame(1);
                     playSound('startGameSound');
+                });
+                $('.info-button').off('click');
+                $('.info-button').click(async function () {
+                    $('.modal-back-drop').css({
+                        display: 'grid',
+                    });
+                    playSound('clickSound');
+                });
+                $('.close-modal').off('click');
+                $('.close-modal').click(async function () {
+                    $('.modal-back-drop').css({
+                        display: 'none',
+                    });
+                    playSound('clickSound');
+                });
+                $('.button').click(function () {
+                    const btn = $(this);
+                    btn.css({
+                        opacity: 0.7,
+                        transform: 'scale(0.8)',
+                    });
+                    setTimeout(function () {
+                        btn.css({
+                            opacity: 1,
+                            transform: 'scale(1)',
+                        });
+                    }, 150);
                 });
                 async function startGame(level) {
                     function handleChangeLevelDOM() {
@@ -364,10 +418,7 @@
                                 alert('Bạn đã hết lượt gợi ý');
                             }
                         });
-                        $('.info-button').off('click');
-                        $('.info-button').click(async function () {
-                            playSound('clickSound');
-                        });
+
                         async function renderBoard() {
                             // Vẽ đường sau đó xóa sau 150ms
                             drawPath(paths);

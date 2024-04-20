@@ -12,13 +12,11 @@ body {
   color: white;
   font-size: 30px;
 }
-
-.action-bar {
+body .action-bar {
   display: flex;
   margin: 20px 0;
 }
-
-.action-content {
+body .action-content {
   width: fit-content;
   margin: 0 auto;
   display: flex;
@@ -26,41 +24,40 @@ body {
   flex-wrap: wrap;
   gap: 250px;
 }
-@media only screen and (max-width: 1230px) {
-  .action-content {
+@media only screen and (max-width: 1355px) {
+  body .action-content {
     justify-content: center;
     gap: 10px;
   }
 }
-
-.button:hover {
-  cursor: pointer;
-  opacity: 0.8;
-}
-
-.action-left,
-.action-right {
+body .action-left,
+body .action-right {
   display: flex;
   align-items: center;
 }
-
-.action-right {
+body .action-right {
   gap: 40px;
 }
-
-.action-icon {
+body .action-icon {
   width: 50px;
   margin: auto 10px;
   display: grid;
   place-items: center;
 }
-
-#score {
+@media (max-height: 500px) {
+  body .action-icon {
+    width: 30px;
+  }
+}
+body .button:hover {
+  opacity: 0.8;
+  cursor: pointer;
+}
+body #score {
   font-size: 30px;
   color: white;
 }
-
-.level-parent {
+body .level-parent {
   max-width: 50px;
   min-width: 50px;
   height: 50px;
@@ -72,47 +69,51 @@ body {
   opacity: 0.8;
   border: 2.5px solid rgba(255, 255, 255, 0.8);
 }
-
-#level {
+@media (max-height: 500px) {
+  body .level-parent {
+    max-width: 30px;
+    min-width: 30px;
+    height: 30px;
+  }
+}
+body #level {
   color: white;
   font-size: 30px;
 }
-
-.plus-level {
+@media (max-height: 500px) {
+  body #level {
+    font-size: 20px;
+  }
+}
+body .plus-level {
   margin-right: 60px;
 }
-
-.clock {
+body .clock {
   margin-left: 60px;
 }
-
-.progress {
+body .progress {
   border-radius: 20px;
   height: 30px;
   width: 250px;
   overflow: hidden;
   border: 1.5px solid rgb(222, 131, 18);
 }
-
-.progress-bar {
+body .progress-bar {
   width: 100%;
   height: 100%;
   background: repeating-linear-gradient(to top left, beige 0, beige 2em, moccasin 2em, moccasin 4em, wheat 4em, wheat 6em), repeating-linear-gradient(to left, white 0, white 2em, wheat 2em, wheat 4em, beige 4em, beige 6em), white;
   background-blend-mode: multiply;
   transition: all ease-in-out 0.2s;
 }
-
-.reset-button {
+body .reset-button {
   display: flex;
   height: fit-content;
 }
-
-#resetAmount,
-#hintAmount {
+body #resetAmount,
+body #hintAmount {
   margin: auto 0;
 }
-
-#game-container {
+body #game-container {
   position: relative;
   width: 100%;
   height: 100vh;
@@ -125,16 +126,14 @@ body {
   background-repeat: no-repeat;
 }
 @media (max-height: 500px) {
-  #game-container {
+  body #game-container {
     height: unset;
   }
 }
-
-.hint-button {
+body .hint-button {
   display: flex;
 }
-
-#gameBoard {
+body #gameBoard {
   position: relative;
   margin: 0 auto;
   width: fit-content;
@@ -143,20 +142,13 @@ body {
   grid-template-columns: repeat(18, 1fr);
   z-index: 1000;
 }
-
-#score-board {
+body #score-board,
+body #buttons {
   width: 500px;
   margin: 0 auto;
   text-align: center;
 }
-
-#buttons {
-  width: 500px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-#restart-button {
+body #restart-button {
   padding: 15px 14px;
   font: 18px "Pixelify Sans", sans-serif;
   width: fit-content;
@@ -166,80 +158,72 @@ body {
   background: transparent url(../images/button.png) no-repeat center center;
   background-size: 100%;
   border: none;
+  z-index: 1000;
 }
-
-.pieces {
+body .pieces {
   position: relative;
   width: 40px;
   height: 50px;
   border: 1px solid rgb(0, 153, 51);
 }
-.pieces:hover {
+body .pieces:hover {
   cursor: pointer;
   opacity: 0.9;
   border: 1px solid red;
 }
 @media (max-height: 750px) {
-  .pieces {
+  body .pieces {
     width: 32px;
     height: 40px;
   }
 }
 @media (max-height: 500px) {
-  .pieces {
+  body .pieces {
     width: 28px;
     height: 35px;
   }
 }
-
-.overlay-pieces {
+body .overlay-pieces {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
 }
-.overlay-pieces > * {
+body .overlay-pieces > * {
   color: red;
   margin: 0 auto;
   padding: 0;
   font-weight: bold;
   width: fit-content;
 }
-
-.selected {
+body .selected {
   opacity: 0.7;
 }
-
-.hidden {
+body .hidden {
   visibility: hidden;
 }
-
-.path {
+body .path {
   border: 2px solid red;
 }
-
-.hint {
+body .hint {
   opacity: 0.4;
 }
-
-#time {
+body #time {
   font-size: 30px;
   margin-left: 10px;
 }
-
-.pokemon-run-margin {
+body .pokemon-run-margin {
   height: 100px;
   width: 100%;
   background: transparent;
 }
 @media (max-height: 750px) {
-  .pokemon-run-margin {
+  body .pokemon-run-margin {
     display: none;
   }
 }
-
-.pokemon_run {
+body .pokemon_run {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -249,11 +233,10 @@ body {
   z-index: 0;
 }
 @media (max-height: 750px) {
-  .pokemon_run {
+  body .pokemon_run {
     display: none;
   }
 }
-
 @keyframes pikachuRun {
   0% {
     transform: translateX(-110%);
@@ -262,9 +245,86 @@ body {
     transform: translateX(100vw);
   }
 }
-#pikachuGif {
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes fadeInAndScaleFromCenter {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes fadeOutAndScaleToCenter {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+body #pikachuGif {
   animation: pikachuRun 10s linear infinite;
   user-select: none;
+}
+body .modal-back-drop {
+  display: none;
+  animation: fadeIn ease-in-out 0.3s;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+  place-items: center;
+}
+body .modal {
+  background: white;
+  border-radius: 20px;
+  padding: 20px 0;
+  animation: fadeInAndScaleFromCenter ease-in-out 0.3s;
+  width: 500px;
+}
+@media only screen and (max-width: 768px) {
+  body .modal {
+    width: 310px;
+  }
+}
+body .modal * {
+  font-family: Arial, Helvetica, sans-serif;
+  color: black;
+  font-size: 20px;
+}
+body .modal-header {
+  padding: 0 10px 10px 25px;
+  border-bottom: 1px solid #020d12;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+body .modal-body {
+  padding: 20px;
+  display: grid;
+  gap: 20px;
 }
 
 /*# sourceMappingURL=index.css.map */
