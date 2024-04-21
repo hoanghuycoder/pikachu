@@ -3,7 +3,7 @@ $game-container-background-image: url('../images/bgpikachu2.webp');
 $pokemon-run-height: 100px;
 $boardColNum: 18; // Bao gồm 2 cột null ở 2 phía ngoài cùng
 $breakpoint-sm: 768px;
-$heightScreenMobile: 750px;
+$heightScreenMobile: 600px;
 $minHeightScreen: 500px;
 
 @mixin respond-from($breakpoint) {
